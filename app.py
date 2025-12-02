@@ -8,6 +8,9 @@ st.set_page_config(
 
 st.title("🎮 Game Design Knowledge Assistant")
 
+if "docs" not in st.session_state:
+    st.session_state.docs = []
+
 st.write("Upload your game design documents!")
 
 # Document upload
@@ -21,6 +24,12 @@ if uploaded_files:
     st.success(f"{len(uploaded_files)} document(s) uploaded!")
     for f in uploaded_files:
         st.write(f"📄 {f.name}")
+        text = f.read().decode("utf-8")
+        st.session_state.docs.append({"filename": f.name, "text": text})
+
+st.write("### Loaded Documents:")
+for d in st.session_state.docs:
+    st.write(f"- {d['filename']}")
 
 # User question
 question = st.text_input("Ask a question about your design documents:")
