@@ -1,5 +1,11 @@
 import streamlit as st
 
+st.set_page_config(
+    page_title="Game Design Knowledge Assistant",
+    page_icon="🎮",
+    # layout="wide"
+)
+
 st.title("🎮 Game Design Knowledge Assistant")
 
 st.write("Upload your game design documents!")
