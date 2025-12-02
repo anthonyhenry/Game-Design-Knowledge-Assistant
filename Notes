@@ -1,0 +1,19 @@
+Have python installed
+
+Navigate to project root directory
+
+Create a virtual environment by pasting this in terminal:
+python -m venv venv
+
+Activate the virtual environment with this terminal command:
+venv\Scripts\activate
+
+Install streamlit in the virtual environemnt with this command:
+pip install streamlit
+
+Run project in virtual environment with:
+streamlit run app.py
+
+RAG = Retrieval-Augmented Generation.
+It's a pattern that lets an LLM look things up instead of making things up.
+
