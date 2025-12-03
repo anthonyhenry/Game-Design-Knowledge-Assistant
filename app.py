@@ -18,7 +18,7 @@ if "docs" not in st.session_state:
 # Document upload
 uploaded_files = st.file_uploader(
     "Upload documents (.pdf, .docx, .txt or .md )",
-    type=["txt", "md", "pdf", "docx"],
+    type=["pdf", "docx", "txt", "md", ],
     accept_multiple_files=True
 )
 
