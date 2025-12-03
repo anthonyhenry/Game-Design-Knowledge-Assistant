@@ -17,3 +17,6 @@ streamlit run app.py
 RAG = Retrieval-Augmented Generation.
 It's a pattern that lets an LLM look things up instead of making things up.
 
+Install python-docx and pdfplumber IN THE VIRTUAL ENVIRONMENT
+    pip install pdfplumber
+    pip install python-docx
