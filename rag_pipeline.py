@@ -23,7 +23,7 @@ class RAGPipeline:
     # ------------------------
     # 2. Chunk document text
     # ------------------------
-    def _create_chunks(self, chunk_size=200, overlap=50):
+    def _create_chunks(self, chunk_size=100, overlap=25):
         all_chunks = []
         all_sources = []
 
@@ -43,6 +43,8 @@ class RAGPipeline:
 
         self.chunks = all_chunks
         self.chunk_sources = all_sources
+
+        print(all_chunks)
 
     # ------------------------
     # 3. Embed chunks (FREE, local)
@@ -79,9 +81,6 @@ class RAGPipeline:
             }
             for i in top_idx
         ]
-
-        # MIN_SIMILARITY = 0.10   # This can be adjusted. Lower number means more chunks, higher number is stricter
-        # results = [r for r in results if r["score"] >= MIN_SIMILARITY]
 
         return results
 

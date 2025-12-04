@@ -35,3 +35,28 @@ For OpenAI only:
     pip install openai
 
 pip install groq
+
+Mechanics / Power-Ups
+    What does the EMP Pulse power-up do?
+    How much damage does a Warrior’s Rage ability deal?
+    What effect does the Shield Boost have?
+
+Enemies / Weaknesses
+    Which enemy is weak to fire spells?
+    How much health does the Dragon have?
+    What are the Orc’s attack patterns?
+
+Quests / Objectives
+    What is the first step in the “The Lost Artifact” quest?
+    What level is required to start the “Lost Artifact” quest?
+    What rewards do players get for completing the quest?
+
+Level / Environment
+    What hazards are in the Castle Siege level?
+    How many waves of enemies must players survive?
+    What does the Reinforced Shield power-up do?
+
+General / Narrative
+    How does the player’s choice affect endings in Space Raiders?
+    What are the special abilities available to the Mage class?
+    Which enemy requires coordinated fleet attacks?
