@@ -1,32 +1,36 @@
 import streamlit as st
 import file_readers
-
+from rag_pipeline import RAGPipeline
 
 st.set_page_config(
     page_title="Game Design Knowledge Assistant",
-    page_icon="🎮",
-    # layout="wide"
+    page_icon="🎮"
 )
 
 st.title("🎮 Game Design Knowledge Assistant")
 
+# Load pipeline once
+@st.cache_resource
+def load_rag_pipeline():
+    return RAGPipeline()
+
+if "rag" not in st.session_state:
+    st.session_state.rag = load_rag_pipeline()
+
 if "docs" not in st.session_state:
     st.session_state.docs = []
 
-# st.write("Upload your game design documents!")
-
-# Document upload
+# ----------------------------
+# File Upload
+# ----------------------------
 uploaded_files = st.file_uploader(
-    "Upload documents (.pdf, .docx, .txt or .md )",
-    type=["pdf", "docx", "txt", "md", ],
+    "Upload documents (.pdf, .docx, .txt, or .md)",
+    type=["pdf", "docx", "txt", "md"],
     accept_multiple_files=True
 )
 
 if uploaded_files:
-    # st.success(f"{len(uploaded_files)} document(s) uploaded!")
     for f in uploaded_files:
-        # st.write(f"📄 {f.name}")
-
         # Get file extension
         ext = f.name.split(".")[-1].lower()
 
@@ -37,11 +41,27 @@ if uploaded_files:
         elif ext == "docx":
             text = file_readers.read_docx(f)
         else:
-            st.error(f"Unsupported file type: {f.name}")
+            st.error(f"Unsupported type: {f.name}")
             continue
 
         st.session_state.docs.append({"filename": f.name, "text": text})
 
+    st.success("Files uploaded! Now click **Process Documents** below.")
+
+# ----------------------------
+# Process Documents Button
+# ----------------------------
+if st.button("📚 Process Documents"):
+    if not st.session_state.docs:
+        st.error("Upload documents first.")
+    else:
+        rag = st.session_state.rag
+        rag.add_documents(st.session_state.docs)
+        st.success("Documents processed and embedded!")
+
+# ----------------------------
+# Show extracted text
+# ----------------------------
 st.write("### Loaded Documents:")
 for d in st.session_state.docs:
     st.write(f"- {d['filename']}")
@@ -49,15 +69,25 @@ for d in st.session_state.docs:
 if st.checkbox("Show extracted text"):
     for d in st.session_state.docs:
         st.subheader(d["filename"])
-        st.code(d["text"][:1000] + "...")
+        st.code(d["text"][:800] + "...")
 
-# User question
-question = st.text_input("Ask a question about your design documents:")
-
-if st.button("Submit Query"):
-    if not uploaded_files:
-        st.error("Please upload at least one document first.")
+# ----------------------------
+# Query
+# ----------------------------
+question = st.text_input("Ask a question:")
+if st.button("Submit Question"):
+    if not st.session_state.docs:
+        st.error("Upload and process documents first.")
     elif not question.strip():
-        st.error("Please enter a question.")
+        st.error("Enter a question.")
     else:
-        st.info("The RAG pipeline will answer here once implemented!")
+        rag = st.session_state.rag
+        context, results = rag.build_context(question)
+
+        st.subheader("📌 Retrieved Context")
+        for r in results:
+            st.markdown(f"**From:** {r['source']} (score={r['score']:.3f})")
+            st.code(r["chunk"])
+
+        st.subheader("💬 Assistant Response")
+        st.info("LLM integration coming next!")
