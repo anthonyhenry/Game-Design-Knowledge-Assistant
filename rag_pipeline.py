@@ -23,7 +23,7 @@ class RAGPipeline:
     # ------------------------
     # 2. Chunk document text
     # ------------------------
-    def _create_chunks(self, chunk_size=600, overlap=50):
+    def _create_chunks(self, chunk_size=200, overlap=50):
         all_chunks = []
         all_sources = []
 
@@ -58,7 +58,7 @@ class RAGPipeline:
     # ------------------------
     # 4. Similarity search
     # ------------------------
-    def search(self, query, top_k=4):
+    def search(self, query, top_k=10):
         if self.embeddings is None or len(self.chunks) == 0:
             return []
 
@@ -81,7 +81,7 @@ class RAGPipeline:
         ]
 
         # MIN_SIMILARITY = 0.10   # This can be adjusted. Lower number means more chunks, higher number is stricter
-        results = [r for r in results if r["score"] ]#>= MIN_SIMILARITY]
+        # results = [r for r in results if r["score"] >= MIN_SIMILARITY]
 
         return results
 
@@ -89,7 +89,7 @@ class RAGPipeline:
     # ------------------------
     # 5. Build context
     # ------------------------
-    def build_context(self, query, top_k=4):
+    def build_context(self, query, top_k=10):
         retrieved = self.search(query, top_k)
 
         context = ""

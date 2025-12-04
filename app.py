@@ -60,18 +60,6 @@ if st.button("📚 Process Documents"):
         st.success("Documents processed and embedded!")
 
 # ----------------------------
-# Show extracted text
-# ----------------------------
-st.write("### Loaded Documents:")
-for d in st.session_state.docs:
-    st.write(f"- {d['filename']}")
-
-if st.checkbox("Show extracted text"):
-    for d in st.session_state.docs:
-        st.subheader(d["filename"])
-        st.code(d["text"][:800] + "...")
-
-# ----------------------------
 # Query
 # ----------------------------
 question = st.text_input("Ask a question:")
@@ -82,26 +70,17 @@ if st.button("Submit Question"):
         st.error("Enter a question.")
     else:
         rag = st.session_state.rag
-        context, results = rag.build_context(question)
-
-        st.subheader("📌 Retrieved Context")
-        for r in results:
-            st.markdown(f"**From:** {r['source']} (score={r['score']:.3f})")
-            st.code(r["chunk"])
-
-        st.subheader("💬 Assistant Response")
-        st.info("LLM integration coming next!")
 
         from llm_client import get_groq_client, get_llm_response
 
-        # Initialize Groq client once
+        # Initialize Groq client
         if "groq_client" not in st.session_state:
             st.session_state.groq_client = get_groq_client()
 
         # Build context using RAG
         context, sources = st.session_state.rag.build_context(question)
 
-        st.write("### Retrieved Context:")
+        st.subheader("📌 Retrieved Context")
         for s in sources:
             st.write(f"**From {s['source']}** (score={s['score']:.3f})")
             st.code(s["chunk"][:400] + "...")
@@ -109,6 +88,5 @@ if st.button("Submit Question"):
         # Call Groq LLM
         llm_answer = get_llm_response(st.session_state.groq_client, question, context)
 
-        st.write("### Assistant Response:")
+        st.subheader("💬 Assistant Response")
         st.write(llm_answer)
-
