@@ -91,3 +91,24 @@ if st.button("Submit Question"):
 
         st.subheader("💬 Assistant Response")
         st.info("LLM integration coming next!")
+
+        from llm_client import get_groq_client, get_llm_response
+
+        # Initialize Groq client once
+        if "groq_client" not in st.session_state:
+            st.session_state.groq_client = get_groq_client()
+
+        # Build context using RAG
+        context, sources = st.session_state.rag.build_context(question)
+
+        st.write("### Retrieved Context:")
+        for s in sources:
+            st.write(f"**From {s['source']}** (score={s['score']:.3f})")
+            st.code(s["chunk"][:400] + "...")
+
+        # Call Groq LLM
+        llm_answer = get_llm_response(st.session_state.groq_client, question, context)
+
+        st.write("### Assistant Response:")
+        st.write(llm_answer)
+
