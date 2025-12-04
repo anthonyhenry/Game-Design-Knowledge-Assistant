@@ -80,7 +80,7 @@ class RAGPipeline:
             for i in top_idx
         ]
 
-        MIN_SIMILARITY = 0.30   # This can be adjusted
+        MIN_SIMILARITY = 0.30   # This can be adjusted. Lower number means more chunks, higher number is stricter
         results = [r for r in results if r["score"] >= MIN_SIMILARITY]
 
         return results
