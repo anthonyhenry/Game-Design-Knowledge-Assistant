@@ -38,25 +38,55 @@ pip install groq
 
 Mechanics / Power-Ups
     What does the EMP Pulse power-up do?
-    How much damage does a Warrior’s Rage ability deal?
+        Disables enemy abilities for 5 seconds.
+
+    What does the Warrior's rage ability do?
+        Increases damage by 50% for 10 seconds.
+
     What effect does the Shield Boost have?
+        Restores 50 shield points.
 
 Enemies / Weaknesses
     Which enemy is weak to fire spells?
+        Goblin
+
     How much health does the Dragon have?
-    What are the Orc’s attack patterns?
+        500
+
+    What is the orc weak to?
+        Ice spells
+
 
 Quests / Objectives
     What is the first step in the “The Lost Artifact” quest?
+        Talk to Elder Magus to receive quest.
+
     What level is required to start the “Lost Artifact” quest?
+        Talk to Elder Magus to receive quest.
+
     What rewards do players get for completing the quest?
+        Experience Points: 1500
+        Gold: 500
+        Unique Item: Staff of Elements
+        Unlocks: New Mage spells
+
 
 Level / Environment
     What hazards are in the Castle Siege level?
+        Spike pits, arrow traps.
+
     How many waves of enemies must players survive?
+        10 waves of enemies
+
     What does the Reinforced Shield power-up do?
+        Reduces damage by 25% for 20 seconds.
 
 General / Narrative
     How does the player’s choice affect endings in Space Raiders?
+        Player decisions affect faction relationships and unlock alternate endings.
+
     What are the special abilities available to the Mage class?
+        Arcane Surge – Reduces cooldowns by 50% for 15 seconds.
+
     Which enemy requires coordinated fleet attacks?
+        Alien Mothership
