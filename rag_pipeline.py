@@ -71,7 +71,7 @@ class RAGPipeline:
 
         top_idx = similarities.argsort()[-top_k:][::-1]
 
-        return [
+        results = [
             {
                 "chunk": self.chunks[i],
                 "source": self.chunk_sources[i],
@@ -79,6 +79,12 @@ class RAGPipeline:
             }
             for i in top_idx
         ]
+
+        MIN_SIMILARITY = 0.30   # This can be adjusted
+        results = [r for r in results if r["score"] >= MIN_SIMILARITY]
+
+        return results
+
 
     # ------------------------
     # 5. Build context
