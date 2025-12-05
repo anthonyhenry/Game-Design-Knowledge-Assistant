@@ -45,6 +45,7 @@ class RAGPipeline:
         self.chunk_sources = all_sources
 
         # print(all_chunks)
+        print(len(self.documents))
 
     # ------------------------
     # 3. Embed chunks (FREE, local)

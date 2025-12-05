@@ -1,0 +1,23 @@
+Quest Name: The Lost Artifact
+Quest Type: Main Story
+
+Objective:
+- Retrieve the lost artifact from the Ancient Ruins.
+- Return it to the Guild of Mages.
+
+Steps:
+1. Talk to Elder Magus to receive quest.
+2. Travel to Ancient Ruins.
+3. Defeat Guardian Golem.
+4. Solve the rune puzzle to unlock artifact chamber.
+5. Retrieve artifact and return to Guild.
+
+Rewards:
+- Experience Points: 1500
+- Gold: 500
+- Unique Item: Staff of Elements
+- Unlocks: New Mage spells
+
+Notes:
+- Player must have at least Level 5 to start quest.
+- Puzzle can be skipped if player has Ancient Key item.
