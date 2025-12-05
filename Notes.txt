@@ -90,3 +90,7 @@ General / Narrative
 
     Which enemy requires coordinated fleet attacks?
         Alien Mothership
+
+Example Questions
+    How can I implement the monsters naturally into my Lost Artifact quest?
+    How do you recommend I implement the Lost Artifact quest in my game?

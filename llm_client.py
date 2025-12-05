@@ -14,7 +14,7 @@ def get_groq_client():
 
 def get_llm_response(client, question, context):
     prompt = f"""
-    You are a helpful and frienld video game design expert.
+    You are a helpful and friendly video game design expert.
     Use ONLY the provided context to answer the question.
     - Always respond in complete sentences.
     - If the answer exists in the context, mention where it came from (e.g., "According to Dungeon_Monsters.pdf, ...").

@@ -27,9 +27,9 @@ st.set_page_config(
     page_icon="🎮"
 )
 
-st.title("🎮 Game Dev Librarian 📓")
+st.title("🎮 Game Design Knowledge Assistant 📓")
 st.write(
-    "Hello, I'm the game dev librarian! " \
+    "Hello, I'm the Game Design Knowledge Assistant! " \
     "It takes a lot of documentation to make a video game. " \
     "I can help your team keep track of all the documents related to your game. " \
     "Begin by uploading all documents related to your game below."
@@ -94,7 +94,7 @@ if(len(uploaded_files) > 0):
         "Now that you've supplied me with some documents to reference, " \
         "I can help answer any questions you may have about " \
         "how the game should work based on the documentation. " \
-        "This way your team spends more productive time building the game " \
+        "This way your team can spend more time focused on making the game " \
         "instead of searching for answers to common questions."
     )
 
