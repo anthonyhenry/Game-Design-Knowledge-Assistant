@@ -44,7 +44,7 @@ class RAGPipeline:
         self.chunks = all_chunks
         self.chunk_sources = all_sources
 
-        print(all_chunks)
+        # print(all_chunks)
 
     # ------------------------
     # 3. Embed chunks (FREE, local)
