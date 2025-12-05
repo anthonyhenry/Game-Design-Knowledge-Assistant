@@ -62,7 +62,7 @@ Quests / Objectives
         Talk to Elder Magus to receive quest.
 
     What level is required to start the “Lost Artifact” quest?
-        Talk to Elder Magus to receive quest.
+        Player must have at least Level 5 to start quest.
 
     What rewards do players get for completing the quest?
         Experience Points: 1500
