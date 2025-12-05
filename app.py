@@ -3,23 +3,26 @@ import os
 import file_readers
 from rag_pipeline import RAGPipeline
 
-# st.markdown(
-#     """
-#     <style>
-#     /* Hide list of uploaded files */
-#     ul{
-#         display: none
-#     }
-    
-#     /* Hide "Showing page X of Y" in file uploader */
-#     div[data-testid="stFileUploaderPagination"] {
-#         display: none;
-#     }
-#     </style>
-#     """,
-#     unsafe_allow_html=True
-# )
 
+# ----------------------------
+# CSS to hide uploaded files
+# ----------------------------
+st.markdown(
+    """
+    <style>
+    /* Hide list of uploaded files */
+    ul{
+        display: none
+    }
+    
+    /* Hide "Showing page X of Y" in file uploader */
+    div[data-testid="stFileUploaderPagination"] {
+        display: none;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 # ----------------------------
 # Cache rag pipeline (for performance)
@@ -60,7 +63,6 @@ def load_sample_docs():
 if "docs" not in st.session_state:
     st.session_state.docs = load_sample_docs()
     st.session_state.rag.add_documents(st.session_state.docs)
-    st.toast("Loaded sample documents!", icon="📚")
 
 # ----------------------------
 # Begin UI
@@ -81,81 +83,91 @@ st.write(
     "When you're ready, you can upload your own documents for me to reference."
 )
 
+
 # ----------------------------
-# File Upload
+# Load Documents
 # ----------------------------
+
+# Track processed files since uploaded files persist
+if "processed_files" not in st.session_state:
+    st.session_state.processed_files = set()
+
+# File uploader
 uploaded_files = st.file_uploader(
     "Upload documents (.pdf, .docx, .txt, or .md)",
     type=["pdf", "docx", "txt", "md"],
-    accept_multiple_files=True
+    accept_multiple_files=True,
 )
 
-# # Use these to detect when files are added or removed
-# current_files = {f.name for f in uploaded_files} if uploaded_files else set()
-# saved_files = {d["filename"] for d in st.session_state.docs}
+# Process new uploads
+if uploaded_files:
+    new_docs = []
 
-# # Build documents + embeddings
-# if uploaded_files is not None and current_files != saved_files:
+    for file in uploaded_files:
+        if file.name in st.session_state.processed_files:
+            continue  # skip files already processed
 
-#     # Reset docs list to clear out any files that were removed
-#     st.session_state.docs = []
+        # Remove old doc with same filename (overwrite behavior)
+        st.session_state.docs = [
+            d for d in st.session_state.docs if d["filename"] != file.name
+        ]
 
-#     for f in uploaded_files:
-#         # Get file extension
-#         ext = f.name.split(".")[-1].lower()
+        # Read file contents
+        ext = file.name.split(".")[-1].lower()
+        if ext in ["txt", "md"]:
+            text = file_readers.read_txt(file)
+        elif ext == "pdf":
+            text = file_readers.read_pdf(file)
+        elif ext == "docx":
+            text = file_readers.read_docx(file)
+        else:
+            st.error(f"Unsupported type: {file.name}")
+            continue
 
-#         if ext in ["txt", "md"]:
-#             text = file_readers.read_txt(f)
-#         elif ext == "pdf":
-#             text = file_readers.read_pdf(f)
-#         elif ext == "docx":
-#             text = file_readers.read_docx(f)
-#         else:
-#             st.error(f"Unsupported type: {f.name}")
-#             continue
+        # Add to docs list
+        doc = {"filename": file.name, "text": text}
+        st.session_state.docs.append(doc)
+        new_docs.append(doc)
 
-#         st.session_state.docs.append({"filename": f.name, "text": text})
+        # Mark as processed
+        st.session_state.processed_files.add(file.name)
 
-#     # Rebuild RAG pipeline with updated files
-#     st.session_state.rag.add_documents(st.session_state.docs)
-
-#     # UI notifcation
-#     if len(current_files) > len(saved_files):
-#         st.toast("Documents processed!", icon="📚")
-#     else:
-#         st.toast("Document removed!", icon="📚")
-
+    # Update RAG pipeline only if new docs were added
+    if new_docs:
+        st.session_state.rag.add_documents(st.session_state.docs)
+        st.toast(f"Processed {len(new_docs)} new document(s)!", icon="📚")
 
 # ----------------------------
 # Loaded Documents
 # ----------------------------
 st.write("### 📄 Loaded Documents")
 
-for id, document in enumerate(st.session_state.docs):
-    cols = st.columns([6,1])
-
-    # Left column (Preview)
+for document in st.session_state.docs:
+    # Create two columns
+    cols = st.columns([6, 1])
+    
+    # Preview Column
     with cols[0]:
-        with st.expander(document["filename"], expanded = False):
+        with st.expander(document["filename"], expanded=False):
             st.text_area(
                 "Preview",
                 document["text"],
-                height = 300,
-                disabled = True,
-                key = f"preview_{id}"
+                height=300,
+                disabled=True,
+                key=f"preview_{document['filename']}"
             )
-    
-    # Right column (Trash)
+    # Trash column
     with cols[1]:
-        delete_key = f"delete_{id}"
+        delete_key = f"delete_{document['filename']}"
         if st.button("🗑️", key=delete_key):
-            # Remove document from docs
-            st.session_state.docs.pop(id)
+            # Remove doc
+            st.session_state.docs = [
+                d for d in st.session_state.docs if d["filename"] != document["filename"]
+            ]
             # Update RAG pipeline
             st.session_state.rag.add_documents(st.session_state.docs)
             # Rerun to update loaded documents list properly
             st.rerun()
-
 
 # ----------------------------
 # Query
@@ -165,12 +177,11 @@ for id, document in enumerate(st.session_state.docs):
 
 # Only show query section if there are documents to refernce
 # if(len(uploaded_files) > 0):
+st.write("### ❓ Query")
 st.write(
-    "Now that you've supplied me with some documents to reference, " \
     "I can help answer any questions you may have about " \
     "how the game should work based on the documentation. " \
-    "This way your team can spend more time focused on making the game " \
-    "instead of searching for answers to common questions."
+    "I can also help you come up with new ideas for the game."
 )
 
 question = st.text_input("Ask a question:")
