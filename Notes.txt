@@ -94,3 +94,10 @@ General / Narrative
 Example Questions
     How can I implement the monsters naturally into my Lost Artifact quest?
     How do you recommend I implement the Lost Artifact quest in my game?
+
+
+How to deploy to stream
+anthony-cis112-final-game-dev-assistant
+
+use pip freeze or pip list to get required modules and version numbers for requirements.txt
+    pip freeze > requirements.txt will automatically make the requirements file but you need to prune the non-necessary stuff out
