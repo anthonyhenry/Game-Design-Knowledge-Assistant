@@ -68,21 +68,20 @@ if "docs" not in st.session_state:
 # Begin UI
 # ----------------------------
 st.set_page_config(
-    page_title="Game Design Knowledge Assistant",
+    page_title="Game Dev Assistant",
     page_icon="🎮"
 )
 
-st.title("🎮 Game Design Knowledge Assistant 📓")
+st.title("🎮 Game Dev Assistant 👾")
 st.write(
-    "Hello, I'm the Game Design Knowledge Assistant! " \
+    "Hello, I'm your Game Dev Assistant! " \
     "It takes a lot of documentation to make a video game. " \
-    "I can help you and your team keep track of all the documents related to your game. " \
+    "I can help you keep track of all the documents related to your game. " \
     "Some sample documents are provided to get you started. " \
     "You can preview them in the Loaded Documents section,  " \
-    "then ask me questions about them. " \
+    "then ask me questions about your game's design. " \
     "When you're ready, you can upload your own documents for me to reference."
 )
-
 
 # ----------------------------
 # Load Documents
@@ -172,11 +171,6 @@ for document in st.session_state.docs:
 # ----------------------------
 # Query
 # ----------------------------
-
-# print(len(uploaded_files))
-
-# Only show query section if there are documents to refernce
-# if(len(uploaded_files) > 0):
 st.write("### ❓ Query")
 st.write(
     "I can help answer any questions you may have about " \
@@ -202,10 +196,11 @@ if st.button("Submit Question"):
         # Build context using RAG
         context, sources = st.session_state.rag.build_context(question)
 
-        st.subheader("📌 Retrieved Context")
-        for s in sources:
-            st.write(f"**From {s['source']}** (score={s['score']:.3f})")
-            st.code(s["chunk"][:400] + "...")
+        # Debug: Show top_k chunks for testing
+        # st.subheader("📌 Retrieved Context")
+        # for s in sources:
+        #     st.write(f"**From {s['source']}** (score={s['score']:.3f})")
+        #     st.code(s["chunk"][:400] + "...")
 
         # Call Groq LLM
         llm_answer = get_llm_response(st.session_state.groq_client, question, context)

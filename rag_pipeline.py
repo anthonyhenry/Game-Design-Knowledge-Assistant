@@ -13,7 +13,7 @@ class RAGPipeline:
         self.model = SentenceTransformer(model_name)
 
     # ------------------------
-    # 1. Add documents
+    # Add documents
     # ------------------------
     def add_documents(self, docs):
         self.documents = docs
@@ -21,9 +21,9 @@ class RAGPipeline:
         self._embed_chunks()
 
     # ------------------------
-    # 2. Chunk document text
+    # Chunk document text
     # ------------------------
-    def _create_chunks(self, chunk_size=100, overlap=25):
+    def _create_chunks(self, chunk_size=100, overlap=25): # Adjust chunk_size and overlap to tweak responses
         all_chunks = []
         all_sources = []
 
@@ -45,10 +45,10 @@ class RAGPipeline:
         self.chunk_sources = all_sources
 
         # print(all_chunks)
-        print(len(self.documents))
+        # print(len(self.documents))
 
     # ------------------------
-    # 3. Embed chunks (FREE, local)
+    # Embed chunks
     # ------------------------
     def _embed_chunks(self):
         if not self.chunks:
@@ -59,7 +59,7 @@ class RAGPipeline:
         self.embeddings = self.model.encode(self.chunks, convert_to_numpy=True)
 
     # ------------------------
-    # 4. Similarity search
+    # Similarity search
     # ------------------------
     def search(self, query, top_k=10):
         if self.embeddings is None or len(self.chunks) == 0:
@@ -87,7 +87,7 @@ class RAGPipeline:
 
 
     # ------------------------
-    # 5. Build context
+    # Build context
     # ------------------------
     def build_context(self, query, top_k=10):
         retrieved = self.search(query, top_k)
