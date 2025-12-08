@@ -2,6 +2,7 @@ import streamlit as st
 import os
 import file_readers
 from rag_pipeline import RAGPipeline
+import random
 
 
 # ----------------------------
@@ -84,7 +85,7 @@ st.write(
 )
 
 # ----------------------------
-# Load Documents
+# Upload Documents
 # ----------------------------
 
 # Track processed files since uploaded files persist
@@ -163,6 +164,8 @@ for document in st.session_state.docs:
             st.session_state.docs = [
                 d for d in st.session_state.docs if d["filename"] != document["filename"]
             ]
+            # Hide example questions
+            st.session_state.show_examples = False
             # Update RAG pipeline
             st.session_state.rag.add_documents(st.session_state.docs)
             # Rerun to update loaded documents list properly
@@ -205,5 +208,21 @@ if st.button("Submit Question"):
         # Call Groq LLM
         llm_answer = get_llm_response(st.session_state.groq_client, question, context)
 
+        # Hide examples after a response
+        st.session_state.show_examples = False
+
         st.subheader("💬 Assistant Response")
         st.write(llm_answer)
+
+if "show_examples" not in st.session_state:
+    st.session_state.show_examples = True
+
+sample_questions = [
+    "How can I implement the monsters naturally into my Lost Artifact quest?",
+    "How do you recommend I implement the Lost Artifact quest in my game?",
+    "What are each enemy's weaknesses?"
+]
+
+if st.session_state.show_examples:
+    st.caption("Try asking:")
+    st.caption(random.choice(sample_questions))
