@@ -4,7 +4,7 @@
 The Game Dev Assistant is a tool built to help game developers manage documentation for a project. Users are able to upload game design materials—rules, mechanics descriptions, lore, and other reference documents—and then ask natural-language questions about them. The system retrieves relevant information from the uploaded documents and uses it as context for an LLM. This ensures responses remain grounded in the source material rather than hallucinating.
 
 ## How to Run Locally
-Note: You may need to use python 3.12 to run this project due to pytorch compatability.
+Note: You may need to use python 3.12 to run this project due to pytorch compatability. Running on Windows is also recommended if possible.
 ### 1. Clone this repository
 ```
 git clone https://github.com/anthonyhenry/Game-Design-Knowledge-Assistant
