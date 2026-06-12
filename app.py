@@ -3,7 +3,7 @@ import os
 import file_readers
 from rag_pipeline import RAGPipeline
 import random
-
+from datetime import datetime
 
 # ----------------------------
 # CSS to hide uploaded files
@@ -73,6 +73,15 @@ st.set_page_config(
     page_icon="🎮"
 )
 
+# Check for pending toast messages
+if "pending_toast" in st.session_state:
+    st.toast(st.session_state.pending_toast, icon="📚")
+    del st.session_state.pending_toast
+
+# ----------------------------
+# Welcome
+# ----------------------------
+
 st.title("🎮 Game Dev Assistant 👾")
 st.write(
     "Hello, I'm your Game Dev Assistant! " \
@@ -88,29 +97,37 @@ st.write(
 # Upload Documents
 # ----------------------------
 
-# Track processed files since uploaded files persist
-if "processed_files" not in st.session_state:
-    st.session_state.processed_files = set()
+# Use a key for file uploader to clear files once processed
+if "uploader_key" not in st.session_state:
+    st.session_state.uploader_key = 0
 
 # File uploader
 uploaded_files = st.file_uploader(
     "Upload documents (.pdf, .docx, .txt, or .md)",
     type=["pdf", "docx", "txt", "md"],
     accept_multiple_files=True,
+    key=f"uploader_{st.session_state.uploader_key}"
 )
+
+# Set unique filenames for handling duplicate files
+def get_unique_filename(filename, existing_filenames):
+    if filename not in existing_filenames:
+        return filename
+    
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return f"{filename} [{timestamp}]"
 
 # Process new uploads
 if uploaded_files:
     new_docs = []
 
-    for file in uploaded_files:
-        if file.name in st.session_state.processed_files:
-            continue  # skip files already processed
+    # Build a set of existing filenames
+    existing_filenames = {
+        d["filename"]
+        for d in st.session_state.docs
+    }
 
-        # Remove old doc with same filename (overwrite behavior)
-        st.session_state.docs = [
-            d for d in st.session_state.docs if d["filename"] != file.name
-        ]
+    for file in uploaded_files:
 
         # Read file contents
         ext = file.name.split(".")[-1].lower()
@@ -124,18 +141,23 @@ if uploaded_files:
             st.error(f"Unsupported type: {file.name}")
             continue
 
+        # Use a unique name for the file
+        doc_filename = get_unique_filename(file.name, existing_filenames)
         # Add to docs list
-        doc = {"filename": file.name, "text": text}
+        doc = {"filename": doc_filename, "text": text}
         st.session_state.docs.append(doc)
+        # Update existing filenames
+        existing_filenames.add(doc_filename)
+
         new_docs.append(doc)
 
-        # Mark as processed
-        st.session_state.processed_files.add(file.name)
 
     # Update RAG pipeline only if new docs were added
     if new_docs:
         st.session_state.rag.add_documents(st.session_state.docs)
-        st.toast(f"Processed {len(new_docs)} new document(s)!", icon="📚")
+        st.session_state.pending_toast = (f"Processed {len(new_docs)} new document(s)!")
+        st.session_state.uploader_key += 1
+        st.rerun()
 
 # ----------------------------
 # Loaded Documents
@@ -200,10 +222,10 @@ if st.button("Submit Question"):
         context, sources = st.session_state.rag.build_context(question)
 
         # Debug: Show top_k chunks for testing
-        # st.subheader("📌 Retrieved Context")
-        # for s in sources:
-        #     st.write(f"**From {s['source']}** (score={s['score']:.3f})")
-        #     st.code(s["chunk"][:400] + "...")
+        st.subheader("📌 Retrieved Context")
+        for s in sources:
+            st.write(f"**From {s['source']}** (score={s['score']:.3f})")
+            st.code(s["chunk"][:400] + "...")
 
         # Call Groq LLM
         llm_answer = get_llm_response(st.session_state.groq_client, question, context)
