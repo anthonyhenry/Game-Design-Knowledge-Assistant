@@ -164,32 +164,88 @@ if uploaded_files:
 # ----------------------------
 st.write("### 📄 Loaded Documents")
 
+# Split Documents into pages
+def get_document_pages(text):
+
+    # Characters per page
+    PAGE_SIZE = 500
+
+    # Split document into paragraphs
+    paragraphs = text.split("\n")
+
+    # Loop through paragraphs to create pages
+    pages = []
+    current_page = ""
+    for paragraph in paragraphs:
+        # Start a new page if adding this paragraph would exceed PAGE_SIZE
+        if len(current_page) + len(paragraph) > PAGE_SIZE and len(current_page) > 0:
+            pages.append(current_page.rstrip())
+            current_page = ""
+        current_page += paragraph + "\n"
+
+    if current_page:
+        pages.append(current_page.rstrip())
+
+    return pages
+
 for document in st.session_state.docs:
+    # Load document pages
+    pages = get_document_pages(document["text"])
+
+    # Always save the last opened page of a document
+    page_key = f"page_{document['filename']}"
+    if page_key not in st.session_state:
+        st.session_state[page_key] = 0
+    current_page = st.session_state[page_key]
+    
     # Create two columns
     cols = st.columns([6, 1])
     
     # Preview Column
     with cols[0]:
+        # Display page preivew
         with st.expander(document["filename"], expanded=False):
-            st.text_area(
-                "Preview",
-                document["text"],
-                height=300,
-                disabled=True,
-                key=f"preview_{document['filename']}"
+            st.code(
+                pages[current_page],
+                language=None,
+                wrap_lines=True
             )
+
+            # Page navigation
+            st.caption(f"Page {current_page + 1} of {len(pages)}")
+            if len(pages) > 1:
+                new_page = st.slider(
+                    "Page Slider",
+                    min_value=1,
+                    max_value=len(pages),
+                    value=current_page + 1,
+                    key=f"slider_{document['filename']}",
+                    # label_visibility="collapsed"
+                )
+                # Page changing
+                if new_page - 1 != current_page:
+                    st.session_state[page_key] = new_page - 1
+                    st.rerun()
     # Trash column
     with cols[1]:
         delete_key = f"delete_{document['filename']}"
         if st.button("🗑️", key=delete_key):
+            # Stop saving the last opened page for the document
+            page_key = f"page_{document['filename']}"
+            if page_key in st.session_state:
+                del st.session_state[page_key]
+
             # Remove doc
             st.session_state.docs = [
                 d for d in st.session_state.docs if d["filename"] != document["filename"]
             ]
+
             # Hide example questions
             st.session_state.show_examples = False
+            
             # Update RAG pipeline
             st.session_state.rag.add_documents(st.session_state.docs)
+            
             # Rerun to update loaded documents list properly
             st.rerun()
 
