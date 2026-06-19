@@ -6,38 +6,9 @@ import random
 from datetime import datetime
 
 # ----------------------------
-# CSS to hide uploaded files
+# Helper functions
 # ----------------------------
-st.markdown(
-    """
-    <style>
-    /* Hide list of uploaded files */
-    ul{
-        display: none
-    }
-    
-    /* Hide "Showing page X of Y" in file uploader */
-    div[data-testid="stFileUploaderPagination"] {
-        display: none;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
 
-# ----------------------------
-# Cache rag pipeline (for performance)
-# ----------------------------
-@st.cache_resource
-def load_rag_pipeline():
-    return RAGPipeline()
-
-if "rag" not in st.session_state:
-    st.session_state.rag = load_rag_pipeline()
-
-# ----------------------------
-# Load sample documents on first run
-# ----------------------------
 def load_sample_docs():
     ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
     SAMPLE_DOCS_DIR = os.path.join(ROOT_DIR, "sample_docs")
@@ -61,9 +32,86 @@ def load_sample_docs():
         sample_docs.append({"filename": filename, "text": text})
     return sample_docs
 
+# Set unique filenames for handling duplicate files
+def get_unique_filename(filename, existing_filenames):
+    if filename not in existing_filenames:
+        return filename
+    
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return f"{filename} [{timestamp}]"
+
+# Split Documents into pages
+PAGE_SIZE = 500 # Characters per page
+def get_document_pages(text):
+    # Split document into paragraphs
+    paragraphs = text.split("\n")
+
+    # Loop through paragraphs to create pages
+    pages = []
+    current_page = ""
+    for paragraph in paragraphs:
+        # Start a new page if adding this paragraph would exceed PAGE_SIZE
+        if len(current_page) + len(paragraph) > PAGE_SIZE and len(current_page) > 0:
+            pages.append(current_page.rstrip())
+            current_page = ""
+        current_page += paragraph + "\n"
+
+    if current_page:
+        pages.append(current_page.rstrip())
+
+    return pages
+
+# ----------------------------
+# Initialize session state variables
+# ----------------------------
+
+# Cache rag pipeline (for performance)
+@st.cache_resource
+def load_rag_pipeline():
+    return RAGPipeline()
+if "rag" not in st.session_state:
+    st.session_state.rag = load_rag_pipeline()
+
+if "pending_toast" in st.session_state:
+    # Display pending toast messages
+    st.toast(st.session_state.pending_toast, icon="📚")
+    del st.session_state.pending_toast
+
 if "docs" not in st.session_state:
     st.session_state.docs = load_sample_docs()
     st.session_state.rag.add_documents(st.session_state.docs)
+
+# Use a key for file uploader to clear files once processed
+if "uploader_key" not in st.session_state:
+    st.session_state.uploader_key = 0
+
+# Save conversation history
+if "conversation_history" not in st.session_state:
+    st.session_state.conversation_history = []
+
+if "show_examples" not in st.session_state:
+    st.session_state.show_examples = True
+
+
+# ----------------------------
+# Use CSS to hide uploaded files
+# ----------------------------
+st.markdown(
+    """
+    <style>
+    /* Hide list of uploaded files */
+    ul{
+        display: none
+    }
+    
+    /* Hide "Showing page X of Y" in file uploader */
+    div[data-testid="stFileUploaderPagination"] {
+        display: none;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 # ----------------------------
 # Begin UI
@@ -72,11 +120,6 @@ st.set_page_config(
     page_title="Game Dev Assistant",
     page_icon="🎮"
 )
-
-# Check for pending toast messages
-if "pending_toast" in st.session_state:
-    st.toast(st.session_state.pending_toast, icon="📚")
-    del st.session_state.pending_toast
 
 # ----------------------------
 # Welcome
@@ -97,10 +140,6 @@ st.write(
 # Upload Documents
 # ----------------------------
 
-# Use a key for file uploader to clear files once processed
-if "uploader_key" not in st.session_state:
-    st.session_state.uploader_key = 0
-
 # File uploader
 uploaded_files = st.file_uploader(
     "Upload documents (.pdf, .docx, .txt, or .md)",
@@ -108,14 +147,6 @@ uploaded_files = st.file_uploader(
     accept_multiple_files=True,
     key=f"uploader_{st.session_state.uploader_key}"
 )
-
-# Set unique filenames for handling duplicate files
-def get_unique_filename(filename, existing_filenames):
-    if filename not in existing_filenames:
-        return filename
-    
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    return f"{filename} [{timestamp}]"
 
 # Process new uploads
 if uploaded_files:
@@ -160,33 +191,9 @@ if uploaded_files:
         st.rerun()
 
 # ----------------------------
-# Loaded Documents
+# Load Documents
 # ----------------------------
 st.write("### 📄 Loaded Documents")
-
-# Split Documents into pages
-def get_document_pages(text):
-
-    # Characters per page
-    PAGE_SIZE = 500
-
-    # Split document into paragraphs
-    paragraphs = text.split("\n")
-
-    # Loop through paragraphs to create pages
-    pages = []
-    current_page = ""
-    for paragraph in paragraphs:
-        # Start a new page if adding this paragraph would exceed PAGE_SIZE
-        if len(current_page) + len(paragraph) > PAGE_SIZE and len(current_page) > 0:
-            pages.append(current_page.rstrip())
-            current_page = ""
-        current_page += paragraph + "\n"
-
-    if current_page:
-        pages.append(current_page.rstrip())
-
-    return pages
 
 for document in st.session_state.docs:
     # Load document pages
@@ -250,7 +257,7 @@ for document in st.session_state.docs:
             st.rerun()
 
 # ----------------------------
-# Query
+# Query + Response
 # ----------------------------
 st.write("### ❓ Query")
 st.write(
@@ -258,10 +265,6 @@ st.write(
     "how the game should work based on the documentation. " \
     "I can also help you come up with new ideas for the game."
 )
-
-# Save conversation history
-if "conversation_history" not in st.session_state:
-    st.session_state.conversation_history = []
 
 with st.form("question_form", clear_on_submit=True):
     question = st.text_input("Ask a question:")
@@ -280,17 +283,19 @@ if submitted:
         if "groq_client" not in st.session_state:
             st.session_state.groq_client = get_groq_client()
 
-        # Build context using RAG
-        context, sources = st.session_state.rag.build_context(question)
+        with st.spinner("Reviewing documents..."):
+            # Build context using RAG
+            context, sources = st.session_state.rag.build_context(question)
 
-        # # Debug: Show top_k chunks for testing
-        # st.subheader("📌 Retrieved Context")
-        # for s in sources:
-        #     st.write(f"**From {s['source']}** (score={s['score']:.3f})")
-        #     st.code(s["chunk"][:400] + "...")
+            # # Debug: Show top_k chunks for testing
+            # st.subheader("📌 Retrieved Context")
+            # for s in sources:
+            #     st.write(f"**From {s['source']}** (score={s['score']:.3f})")
+            #     st.code(s["chunk"][:400] + "...")
 
-        # Call Groq LLM
-        llm_answer = get_llm_response(st.session_state.groq_client, question, context)
+        with st.spinner("Forming response..."):
+            # Call Groq LLM
+            llm_answer = get_llm_response(st.session_state.groq_client, question, context)
 
         # Save question and response in conversation history
         st.session_state.conversation_history.append({
@@ -300,9 +305,6 @@ if submitted:
 
         # Hide examples after a response
         st.session_state.show_examples = False
-
-if "show_examples" not in st.session_state:
-    st.session_state.show_examples = True
 
 sample_questions = [
     "How can I implement the monsters naturally into my Lost Artifact quest?",
@@ -328,3 +330,9 @@ for exchange in reversed(st.session_state.conversation_history):
         st.write(exchange["answer"])
 
     st.divider()
+
+# to do:
+    # Generate sample questions instead of hard coding
+    # Cite sources
+    # Open and highlight relevant information
+    # Add Luxdera imagery
