@@ -263,8 +263,10 @@ st.write(
 if "conversation_history" not in st.session_state:
     st.session_state.conversation_history = []
 
-question = st.text_input("Ask a question:")
-if st.button("Submit Question"):
+with st.form("question_form", clear_on_submit=True):
+    question = st.text_input("Ask a question:")
+    submitted = st.form_submit_button("Submit Question")
+if submitted:
     if not st.session_state.docs:
         st.error("Upload documents first.")
     elif not question.strip():
