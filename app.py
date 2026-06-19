@@ -259,6 +259,10 @@ st.write(
     "I can also help you come up with new ideas for the game."
 )
 
+# Save conversation history
+if "conversation_history" not in st.session_state:
+    st.session_state.conversation_history = []
+
 question = st.text_input("Ask a question:")
 if st.button("Submit Question"):
     if not st.session_state.docs:
@@ -277,20 +281,23 @@ if st.button("Submit Question"):
         # Build context using RAG
         context, sources = st.session_state.rag.build_context(question)
 
-        # Debug: Show top_k chunks for testing
-        st.subheader("📌 Retrieved Context")
-        for s in sources:
-            st.write(f"**From {s['source']}** (score={s['score']:.3f})")
-            st.code(s["chunk"][:400] + "...")
+        # # Debug: Show top_k chunks for testing
+        # st.subheader("📌 Retrieved Context")
+        # for s in sources:
+        #     st.write(f"**From {s['source']}** (score={s['score']:.3f})")
+        #     st.code(s["chunk"][:400] + "...")
 
         # Call Groq LLM
         llm_answer = get_llm_response(st.session_state.groq_client, question, context)
 
+        # Save question and response in conversation history
+        st.session_state.conversation_history.append({
+            "question": question,
+            "answer": llm_answer
+        })
+
         # Hide examples after a response
         st.session_state.show_examples = False
-
-        st.subheader("💬 Assistant Response")
-        st.write(llm_answer)
 
 if "show_examples" not in st.session_state:
     st.session_state.show_examples = True
@@ -304,3 +311,18 @@ sample_questions = [
 if st.session_state.show_examples:
     st.caption("Try asking:")
     st.caption(random.choice(sample_questions))
+
+# Display conversation history
+for exchange in reversed(st.session_state.conversation_history):    
+    st.write(exchange["question"])
+    avatar_col, response_col = st.columns([1, 10])
+
+    with avatar_col:
+        # st.image("assets/assistant_icon.png", width=48)
+        st.write("🤖")
+
+    with response_col:
+        # st.markdown("#### 🎮 Game Dev Assistant")
+        st.write(exchange["answer"])
+
+    st.divider()
