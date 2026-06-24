@@ -16,7 +16,7 @@ st.set_page_config(
 # Helper functions
 # ----------------------------
 
-def read_documents(file, filename):
+def read_document(file, filename):
     ext = filename.split(".")[-1].lower()
 
     if ext in ["txt", "md"]:
@@ -41,7 +41,7 @@ def load_sample_docs():
 
         # Get sample doc contents
         with open(path, "rb") as f:
-            text = read_documents(f, filename)
+            text = read_document(f, filename)
         if text is None:
             continue
 
@@ -196,7 +196,7 @@ if uploaded_files:
 
     for file in uploaded_files:
         # Get file contents
-        text = read_documents(file, file.name)
+        text = read_document(file, file.name)
         if text is None:
             st.error(f"Unsupported type: {file.name}")
             continue
