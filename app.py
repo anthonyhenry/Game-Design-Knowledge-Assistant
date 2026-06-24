@@ -95,8 +95,25 @@ if "uploader_key" not in st.session_state:
 if "conversation_history" not in st.session_state:
     st.session_state.conversation_history = []
 
+# Show example questions based on sample docs
 if "show_examples" not in st.session_state:
     st.session_state.show_examples = True
+sample_questions = [
+    "Can you summarize the core gameplay loop please?",
+    "How does difficulty increase over time?",
+    "What are the different alien types and how do they behave?",
+    "How is player score calculated?",
+    "What happens when all aliens are destroyed?",
+    "What happens when the player loses all thier lives?",
+    "How does the player lose lives?"
+]
+
+# List of response faces
+response_imgs = [
+    "imgs/ludexra-answer-1.png",
+    "imgs/ludexra-answer-2.png",
+    "imgs/ludexra-answer-3.png"
+]
 
 
 # ----------------------------
@@ -123,8 +140,8 @@ st.markdown(
 # Welcome
 # ----------------------------
 
-col1, col2 = st.columns([4,6])
-with col1:
+greet_cols = st.columns([4,6])
+with greet_cols[0]:
     st.image("imgs/ludexra-greet.png")
 st.write(
     "Hello, I'm __Ludexra__!" \
@@ -197,6 +214,7 @@ if uploaded_files:
 # ----------------------------
 # Load Documents
 # ----------------------------
+
 st.write("### 📄 Loaded Documents")
 
 for document in st.session_state.docs:
@@ -210,10 +228,10 @@ for document in st.session_state.docs:
     current_page = st.session_state[page_key]
     
     # Create two columns
-    cols = st.columns([6, 1])
+    preview_col, trash_col = st.columns([6, 1])
     
     # Preview Column
-    with cols[0]:
+    with preview_col:
         # Display page preivew
         with st.expander(document["filename"], expanded=False):
             st.code(
@@ -238,7 +256,7 @@ for document in st.session_state.docs:
                     st.session_state[page_key] = new_page - 1
                     st.rerun()
     # Trash column
-    with cols[1]:
+    with trash_col:
         delete_key = f"delete_{document['filename']}"
         if st.button("🗑️", key=delete_key):
             # Stop saving the last opened page for the document
@@ -263,6 +281,7 @@ for document in st.session_state.docs:
 # ----------------------------
 # Query + Response
 # ----------------------------
+
 # st.write("### ❓ Query")
 # st.write(
 #     "I can help answer any questions you may have about " \
@@ -279,8 +298,8 @@ if submitted:
     elif not question.strip():
         st.error("Enter a question.")
     else:
-        think_col_1, think_col_2 = st.columns([3, 8])
-        with think_col_1:
+        cols = st.columns([3, 8])
+        with cols[0]:
             img_placeholder = st.empty()
             img_placeholder.image("imgs/ludexra-think.png")
         
@@ -308,6 +327,7 @@ if submitted:
 
         # Save question and response in conversation history
         st.session_state.conversation_history.append({
+            "img": response_imgs[len(st.session_state.conversation_history) % 3],
             "question": question,
             "answer": llm_answer
         })
@@ -316,12 +336,6 @@ if submitted:
         time.sleep(1) # 1 sec delay so thinking face removal isn't too jarring
         st.session_state.show_examples = False
         img_placeholder.empty()
-
-sample_questions = [
-    "How can I implement the monsters naturally into my Lost Artifact quest?",
-    "How do you recommend I implement the Lost Artifact quest in my game?",
-    "What are each enemy's weaknesses?"
-]
 
 if st.session_state.show_examples:
     st.caption("Try asking:")
@@ -333,7 +347,7 @@ for exchange in reversed(st.session_state.conversation_history):
 
     avatar_col, response_col = st.columns([2, 9])
     with avatar_col:
-        st.image("imgs/ludexra-answer-1.png")
+        st.image(exchange["img"])
     with response_col:
         st.write(exchange["answer"])
 
