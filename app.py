@@ -4,6 +4,7 @@ import file_readers
 from rag_pipeline import RAGPipeline
 import random
 from datetime import datetime
+import time
 
 st.set_page_config(
     page_title="Game Dev Assistant",
@@ -278,7 +279,12 @@ if submitted:
     elif not question.strip():
         st.error("Enter a question.")
     else:
-        rag = st.session_state.rag
+        think_col_1, think_col_2 = st.columns([3, 8])
+        with think_col_1:
+            img_placeholder = st.empty()
+            img_placeholder.image("imgs/ludexra-think.png")
+        
+        rag = st.session_state.rag # WHAT DOES THIS DO????
 
         from llm_client import get_groq_client, get_llm_response
 
@@ -306,8 +312,10 @@ if submitted:
             "answer": llm_answer
         })
 
-        # Hide examples after a response
+        # Hide examples and thinking face
+        time.sleep(1) # 1 sec delay so thinking face removal isn't too jarring
         st.session_state.show_examples = False
+        img_placeholder.empty()
 
 sample_questions = [
     "How can I implement the monsters naturally into my Lost Artifact quest?",
