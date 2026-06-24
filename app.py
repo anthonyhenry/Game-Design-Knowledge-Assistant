@@ -28,9 +28,10 @@ def read_documents(file, filename):
     
     return None
 
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+
 @st.cache_data # Cache sample docs so they don't load each rerun for performance
 def load_sample_docs():
-    ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
     SAMPLE_DOCS_DIR = os.path.join(ROOT_DIR, "sample_docs")
 
     sample_docs = []
@@ -76,6 +77,18 @@ def get_document_pages(text):
 
     return pages
 
+def get_response_imgs():
+    IMGS_DIR = os.path.join(ROOT_DIR, "imgs")
+
+    imgs = []
+
+    for filename in sorted(os.listdir(IMGS_DIR)):
+        if "answer" in filename:
+            imgs.append(os.path.join(IMGS_DIR, filename))
+    
+    return imgs
+response_imgs = get_response_imgs()
+
 # ----------------------------
 # Initialize session state variables
 # ----------------------------
@@ -117,14 +130,6 @@ sample_questions = [
     "How does the player lose lives?",
     "How do the defensive bunkers work?"
 ]
-
-# List of response faces
-response_imgs = [
-    "imgs/ludexra-answer-1.png",
-    "imgs/ludexra-answer-2.png",
-    "imgs/ludexra-answer-3.png"
-]
-
 
 # ----------------------------
 # Use CSS to hide uploaded files
@@ -326,7 +331,7 @@ if submitted:
 
         # Save question and response in conversation history
         st.session_state.conversation_history.append({
-            "img": response_imgs[len(st.session_state.conversation_history) % 3],
+            "img": response_imgs[len(st.session_state.conversation_history) % len(response_imgs)],
             "question": question,
             "answer": llm_answer
         })
