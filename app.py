@@ -16,6 +16,7 @@ st.set_page_config(
 # Helper functions
 # ----------------------------
 
+@st.cache_data # Cache sample docs so they don't load each rerun for performance
 def load_sample_docs():
     ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
     SAMPLE_DOCS_DIR = os.path.join(ROOT_DIR, "sample_docs")
