@@ -16,6 +16,18 @@ st.set_page_config(
 # Helper functions
 # ----------------------------
 
+def read_documents(file, filename):
+    ext = filename.split(".")[-1].lower()
+
+    if ext in ["txt", "md"]:
+        return file_readers.read_txt(file)
+    elif ext == "pdf":
+        return file_readers.read_pdf(file)
+    elif ext == "docx":
+        return file_readers.read_docx(file)
+    
+    return None
+
 @st.cache_data # Cache sample docs so they don't load each rerun for performance
 def load_sample_docs():
     ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -25,17 +37,12 @@ def load_sample_docs():
 
     for filename in os.listdir(SAMPLE_DOCS_DIR):
         path = os.path.join(SAMPLE_DOCS_DIR, filename)
-        ext = filename.split(".")[-1].lower()
 
+        # Get sample doc contents
         with open(path, "rb") as f:
-            if ext in ["txt", "md"]:
-                text = file_readers.read_txt(f)
-            elif ext == "pdf":
-                text = file_readers.read_pdf(f)
-            elif ext == "docx":
-                text = file_readers.read_docx(f)
-            else:
-                continue
+            text = read_documents(f, filename)
+        if text is None:
+            continue
 
         sample_docs.append({"filename": filename, "text": text})
     return sample_docs
@@ -183,16 +190,9 @@ if uploaded_files:
     }
 
     for file in uploaded_files:
-
-        # Read file contents
-        ext = file.name.split(".")[-1].lower()
-        if ext in ["txt", "md"]:
-            text = file_readers.read_txt(file)
-        elif ext == "pdf":
-            text = file_readers.read_pdf(file)
-        elif ext == "docx":
-            text = file_readers.read_docx(file)
-        else:
+        # Get file contents
+        text = read_documents(file, file.name)
+        if text is None:
             st.error(f"Unsupported type: {file.name}")
             continue
 
