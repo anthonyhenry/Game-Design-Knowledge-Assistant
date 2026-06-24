@@ -5,6 +5,11 @@ from rag_pipeline import RAGPipeline
 import random
 from datetime import datetime
 
+st.set_page_config(
+    page_title="Game Dev Assistant",
+    page_icon="🎮"
+)
+
 # ----------------------------
 # Helper functions
 # ----------------------------
@@ -114,26 +119,24 @@ st.markdown(
 )
 
 # ----------------------------
-# Begin UI
-# ----------------------------
-st.set_page_config(
-    page_title="Game Dev Assistant",
-    page_icon="🎮"
-)
-
-# ----------------------------
 # Welcome
 # ----------------------------
 
-st.title("🎮 Game Dev Assistant 👾")
+col1, col2 = st.columns([4,6])
+with col1:
+    st.image("imgs/ludexra-greet.png")
 st.write(
-    "Hello, I'm your Game Dev Assistant! " \
+    "Hello, I'm __Ludexra__!" \
+)
+st.write(
     "It takes a lot of documentation to make a video game. " \
-    "I can help you keep track of all the documents related to your game. " \
+    "I'm here to help you keep track of all the details related to the game you're working on! " \
+    "Upload your documents to turn me into an expert on your game. "
+    "I'll be able to answer any questions you have about the project, well, as long as the answer exists in the documentation." \
+)
+st.write(
     "Some sample documents are provided to get you started. " \
-    "You can preview them in the Loaded Documents section,  " \
-    "then ask me questions about your game's design. " \
-    "When you're ready, you can upload your own documents for me to reference."
+    "You can preview them in the Loaded Documents section.  "
 )
 
 # ----------------------------
@@ -259,12 +262,12 @@ for document in st.session_state.docs:
 # ----------------------------
 # Query + Response
 # ----------------------------
-st.write("### ❓ Query")
-st.write(
-    "I can help answer any questions you may have about " \
-    "how the game should work based on the documentation. " \
-    "I can also help you come up with new ideas for the game."
-)
+# st.write("### ❓ Query")
+# st.write(
+#     "I can help answer any questions you may have about " \
+#     "how the game should work based on the documentation. " \
+#     "I can also help you come up with new ideas for the game."
+# )
 
 with st.form("question_form", clear_on_submit=True):
     question = st.text_input("Ask a question:")
@@ -319,20 +322,11 @@ if st.session_state.show_examples:
 # Display conversation history
 for exchange in reversed(st.session_state.conversation_history):    
     st.write(exchange["question"])
-    avatar_col, response_col = st.columns([1, 10])
 
+    avatar_col, response_col = st.columns([2, 9])
     with avatar_col:
-        # st.image("assets/assistant_icon.png", width=48)
-        st.write("🤖")
-
+        st.image("imgs/ludexra-answer-1.png")
     with response_col:
-        # st.markdown("#### 🎮 Game Dev Assistant")
         st.write(exchange["answer"])
 
     st.divider()
-
-# to do:
-    # Generate sample questions instead of hard coding
-    # Cite sources
-    # Open and highlight relevant information
-    # Add Luxdera imagery
