@@ -5,6 +5,7 @@ from rag_pipeline import RAGPipeline
 import random
 from datetime import datetime
 import time
+from llm_client import get_groq_client, get_llm_response
 
 st.set_page_config(
     page_title="Game Dev Assistant",
@@ -104,8 +105,9 @@ sample_questions = [
     "What are the different alien types and how do they behave?",
     "How is player score calculated?",
     "What happens when all aliens are destroyed?",
-    "What happens when the player loses all thier lives?",
-    "How does the player lose lives?"
+    "What happens when the player loses all their lives?",
+    "How does the player lose lives?",
+    "How do the defensive bunkers work?"
 ]
 
 # List of response faces
@@ -302,10 +304,6 @@ if submitted:
         with cols[0]:
             img_placeholder = st.empty()
             img_placeholder.image("imgs/ludexra-think.png")
-        
-        rag = st.session_state.rag # WHAT DOES THIS DO????
-
-        from llm_client import get_groq_client, get_llm_response
 
         # Initialize Groq client
         if "groq_client" not in st.session_state:
