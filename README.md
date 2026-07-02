@@ -4,9 +4,7 @@
 Ludexra is your personal game development assistant. Ludexra can take in your game design documents, specs, or other reference documents to become an expert on your project. Ask Ludexra a question, and as long as the answer is available in the provided documentation, Ludexra will give you an accurate answer.
 
 ## System Architecture
-IMAGE GOES HERE
-IMAGE GOES HERE
-IMAGE GOES HERE
+![System architecture image.](imgs/readme-system-architecture.png)
 
 ### Frameworks and Libraries
 Ludexra is developed entirely in Python, using the Streamlit framework to build its web interface.
