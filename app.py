@@ -8,7 +8,7 @@ import time
 from llm_client import get_groq_client, get_llm_response
 
 st.set_page_config(
-    page_title="Game Dev Assistant",
+    page_title="Ludexra",
     page_icon="🎮"
 )
 
