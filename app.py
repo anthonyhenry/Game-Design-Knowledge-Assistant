@@ -30,7 +30,7 @@ def read_document(file, filename):
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-@st.cache_data # Cache sample docs so they don't load each rerun for performance
+# @st.cache_data # Cache sample docs so they don't load each rerun for performance
 def load_sample_docs():
     SAMPLE_DOCS_DIR = os.path.join(ROOT_DIR, "sample_docs")
 
@@ -159,7 +159,7 @@ greet_cols = st.columns([4,6])
 with greet_cols[0]:
     st.image("imgs/ludexra-greet.png")
 st.write(
-    "Hello, I'm __Ludexra__!" \
+    "Hello, I'm __Ludexra 1.0.1__!" \
 )
 st.write(
     "It takes a lot of documentation to make a video game. " \
