@@ -159,7 +159,7 @@ greet_cols = st.columns([4,6])
 with greet_cols[0]:
     st.image("imgs/ludexra-greet.png")
 st.write(
-    "Hello, I'm __Ludexra 1.0.1__!" \
+    "Hello, I'm __Ludexra__!" \
 )
 st.write(
     "It takes a lot of documentation to make a video game. " \
